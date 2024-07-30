@@ -1,46 +1,72 @@
 # Setup 
+```
 cd ~/work_sushil/f1tenth_ws; source install/setup.bash
+```
+
 # Setup Alias
+```
 alias skws='cd ~/work_sushil/f1tenth_ws; source install/setup.bash'
+```
 
 # To build 
+```
 colcon build
+```
 
 # to test joystick
+```
 jstest /dev/input/js0
+```
 
 # to launch ROS stack
+```
 ros2 launch f1tenth_stack bringup_launch.py
 
 ROS_LOG_DIR="/home/sushil/work_sushil/f1tenth_ws/debug" ros2 launch f1tenth_stack bringup_launch.py
-
+```
 
 
 # To visualize
+```
 skws
 rviz2
+```
 
 # to Visualize the network graph of topics and nodes
+```
 cd ~/work_sushil/viz_ws
 source install/setup.bash
 ros2 run ros_network_viz ros_network_viz 
+```
 
 # To just run teleop for debug
+```
 ros2 launch joy_teleop example.launch.py
 ros2 run joy joy_node
 ros2 run joy joy_node --ros-args --log-level DEBUG
 ros2 run joy joy_enumerate_devices
+```
+
 ## if joystick does not show change permissions on the events file
+```
 sudo chmod 666  /dev/input/event1
+```
 
 # go generate maps
 ## run the stack
+```
 ros2 launch f1tenth_stack bringup_launch.py
-## run the slam tool
-ros2 launch slam_toolbox online_async_launch.py slam_params_file:=/home/sushil/work_sushil/f1tenth_ws/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
-## save map when done 
-ros2 run nav2_map_server map_saver_cli -f office-1
+```
 
+## run the slam tool
+```
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=/home/sushil/work_sushil/f1tenth_ws/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
+```
+
+## save map when done 
+```
+ros2 run nav2_map_server map_saver_cli -f office-1
+```
 
 
 # to start simulator
