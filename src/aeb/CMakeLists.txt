@@ -10,6 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(ackermann_msgs REQUIRED)
 
 
 include_directories(include)
@@ -19,6 +21,8 @@ set(
   "rclcpp"
   "std_msgs"
   "sensor_msgs"
+  "nav_msgs"
+  "ackermann_msgs"
 )
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
