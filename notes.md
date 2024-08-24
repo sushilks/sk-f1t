@@ -80,8 +80,11 @@ ros2 launch f1tenth_simulator simulator.launch -->
 cd /home/sushil/work_sushil/sim_ws
 source install/local_setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
-
+# to start the teleop keyboard control
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+ros2 run aeb aeb_node --ros-args -pfull_break_threshold:=2.9
+
 
 ```
 
@@ -156,12 +159,11 @@ source /opt/ros/humble/setup.bash
 cd <workspacename>
 source install/local_setup.bash 
 
-source install/setup.bas does both underlay and overlay
+source install/setup.bash does both underlay and overlay
 ```
 
 ### packages creation 
 package creation in ros2 useas ament as its build system and colcon as its build tool
 use cmake or python based packages
 
-
-
+ros2 pkg create --build-type ament_cmake wall_following
