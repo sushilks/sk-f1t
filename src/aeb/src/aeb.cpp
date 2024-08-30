@@ -49,7 +49,7 @@ void AEB::odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
 }
 
 void AEB::scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg) {
-  static int j = 8;
+  static int j = 10;
   if (j < 10) {
     RCLCPP_INFO(
         get_logger(),

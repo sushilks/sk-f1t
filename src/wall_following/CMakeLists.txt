@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(ackermann_msgs REQUIRED)# uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -22,6 +23,7 @@ set(
   "std_msgs"
   "sensor_msgs"
   "nav_msgs"
+  "visualization_msgs"
   "ackermann_msgs"
 )
 
@@ -38,7 +40,7 @@ if(BUILD_TESTING)
 endif()
 
 
-add_executable(wall_following_node src/wall_following.cpp src/wall_following_node.cpp)
+add_executable(wall_following_node src/wall_following.cpp src/wall_following_node.cpp src/debug_line.cpp)
 ament_target_dependencies(wall_following_node ${DEPENDENCIES})
 
 
