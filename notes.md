@@ -88,6 +88,8 @@ ros2 run aeb aeb_node --ros-args -pfull_break_threshold:=2.9
 colcon build --packages-select wall_following && ros2 launch wall_following launch.py | tee a
 
 
+export PYTHONPATH=/home/sushil/work/f1t-labs/f1tenth_gym/gym:$PYTHONPATH
+
 
 ```
 

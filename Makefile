@@ -1,5 +1,10 @@
 .PHONY: init gym aeb kbd wall_following build jstest ros_stack rviz
+# PYTHONPATH=$(shell pwd)
+# PYTHONPATH=${PYTHONPATH%"${PYTHONPATH##*[! ]}"}
+# PYTHONPATH+=/../f1tenth_gym/gym:
+# PYTHONPATH+=$(shell echo $$PYTHONPATH)
 
+export PYTHONPATH := $(PWD)/../f1tenth_gym/gym::$(PYTHONPATH)
 #init:
 #	source ~/work/sim_ws/install/setup.bash
 #	source ~/work/skf1t/install/local_setup.bash

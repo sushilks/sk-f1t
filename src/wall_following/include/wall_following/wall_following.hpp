@@ -1,7 +1,5 @@
-#ifndef WALL_FOLLOWING_HPP_
-#define WALL_FOLLOWING_HPP_
+#pragma once
 #include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker.hpp>
 
 #include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "debug/debug_line.hpp"
@@ -30,9 +28,7 @@ class WallFollowing : public rclcpp::Node {
   double prev_error_;
   double error_;
   double integral_;
-  //   visualization_msgs::msg::Marker marker_;
-  //   geometry_msgs::msg::Point car_position_;
-  //   geometry_msgs::msg::Quaternion car_orient_;
+
   std::map<DebugLineName, std::shared_ptr<debug::DebugLine>> debug_lines_;
 
   void scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
@@ -47,4 +43,3 @@ class WallFollowing : public rclcpp::Node {
 };
 
 }  // namespace wall_following
-#endif

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(wall_following)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-psabi)
 endif()
 
 # find dependencies
@@ -12,9 +12,9 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(ackermann_msgs REQUIRED)# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(ackermann_msgs REQUIRED)
+find_package(f1tcommon REQUIRED)
+
 include_directories(include)
 
 set(
@@ -25,6 +25,7 @@ set(
   "nav_msgs"
   "visualization_msgs"
   "ackermann_msgs"
+  "f1tcommon"
 )
 
 if(BUILD_TESTING)
@@ -40,7 +41,7 @@ if(BUILD_TESTING)
 endif()
 
 
-add_executable(wall_following_node src/wall_following.cpp src/wall_following_node.cpp src/debug_line.cpp)
+add_executable(wall_following_node src/wall_following.cpp src/wall_following_node.cpp)
 ament_target_dependencies(wall_following_node ${DEPENDENCIES})
 
 

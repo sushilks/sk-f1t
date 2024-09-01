@@ -6,7 +6,6 @@
 #include "nav_msgs/msg/odometry.hpp"
 
 namespace debug {
-static uint64_t debugLineId = 0;
 class DebugLine {
  public:
   explicit DebugLine(std::string name, rclcpp::Node *node,

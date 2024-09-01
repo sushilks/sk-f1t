@@ -1,6 +1,8 @@
 #include <debug/debug_line.hpp>
 
 namespace debug {
+static uint64_t debugLineId = 0;
+
 DebugLine::DebugLine(std::string name, rclcpp::Node *node,
                      std_msgs::msg::ColorRGBA &c) {
   marker_.header.frame_id = "map";

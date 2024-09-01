@@ -296,7 +296,7 @@ void WallFollowing::scan_callback(
   } else {
     error_ = 0;
     int cnt = 0;
-    double cur_angle = dtor(1);
+    // double cur_angle = dtor(1);
     for (int j = 10; j < 30; ++j) {
       error_ += get_error(msg.get(), desired_dist, dtor(j), 1.0);
       // cur_angle += msg.get()->angle_increment;5s
