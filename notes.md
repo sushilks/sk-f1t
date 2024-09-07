@@ -172,3 +172,7 @@ package creation in ros2 useas ament as its build system and colcon as its build
 use cmake or python based packages
 
 ros2 pkg create --build-type ament_cmake wall_following
+
+
+### to debug build process
+colcon build --packages-select gap_follow  --event-handlers console_cohesion+ --cmake-args "--trace-source src/gap_follow/CMakeList.txt"

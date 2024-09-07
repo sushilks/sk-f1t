@@ -70,7 +70,6 @@ float inline rtod(float r) {  // rad to degree conversion
 float inline dtor(float r) {  //  degree to rad conversion
   return r * M_PI / 180.0;
 }
-
 void WallFollowing::odom_callback(
     const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
   // RCLCPP_INFO(

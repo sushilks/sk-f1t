@@ -1,16 +1,33 @@
 {
     "configurations": [
         {
-            "name": "SKF1Tenth",
+            "name": "SKF1Tenth-clang",
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/src/**/include/",
             ],
             "defines": [],
             "cStandard": "c17",
-            "cppStandard": "c++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "linux-clang-arm64",
             "compilerPath": "/usr/bin/clang++"
+        },
+        {
+            "name": "SKF1Tenth-gcc",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/src/**/include/",
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-arm64",
+            "compilerPath": "/usr/bin/c++",
+            "compilerArgs": [
+                "-std=c++17",
+                "-MD",
+                "-MT"
+            ]
         }
     ],
     "version": 4

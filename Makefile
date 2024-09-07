@@ -3,6 +3,7 @@
 # PYTHONPATH=${PYTHONPATH%"${PYTHONPATH##*[! ]}"}
 # PYTHONPATH+=/../f1tenth_gym/gym:
 # PYTHONPATH+=$(shell echo $$PYTHONPATH)
+# export PYTHONPATH=$PWD/../f1tenth_gym/gym:$PYTHONPATH
 
 export PYTHONPATH := $(PWD)/../f1tenth_gym/gym::$(PYTHONPATH)
 #init:
@@ -20,6 +21,9 @@ kbd:
 wall_following: 
 	colcon build --packages-select wall_following && ros2 launch wall_following launch.py 
 
+gap_follow: 
+	colcon build --packages-select gap_follow && ros2 launch gap_follow launch.py 
+
 build:
 	colcon build
 
@@ -31,3 +35,4 @@ ros_stack:
 
 rviz:
 	rviz2
+
