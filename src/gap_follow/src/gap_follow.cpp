@@ -101,7 +101,7 @@ void GapFollow::init() {
                "it's on both side of the car so +- 90 degrees")
 
   PARAM_DOUBLE(max_dist_threshold_, "max_dist_threshold", 10.0,
-               "dont consider distances highter than this as part of the "
+               "dont consider distances higher than this as part of the "
                "solution")
 
   PARAM_DOUBLE(min_dist_threshold_, "min_dist_threshold", 0.01,
@@ -109,13 +109,13 @@ void GapFollow::init() {
                "solution")
 
   PARAM_DOUBLE(car_radius_, "car_radius", 0.3,
-               "Car size in radius in meters, this will be used to exapand the "
+               "Car size in radius in meters, this will be used to expand the "
                "obstructions in the track")
 
   PARAM_DOUBLE(
       disparity_threshold_, "disparity_threshold", 0.5,
       "Distance changes higher than this will be considered as obstacles that "
-      "will have car_radius applied to it to avoid collusions")
+      "will have car_radius applied to it to avoid collusion")
 
   PARAM_DOUBLE(
       edge_distance_threshold_, "edge_distance_threshold", 0.2,
@@ -123,7 +123,7 @@ void GapFollow::init() {
       "to maintain neutral heading when some thing gets this close")
 
   PARAM_INT(debug_, "debug", 2,
-            "bit 0 = enable debug with drawn lines in gviz, bit 1 == enable "
+            "bit 0 = enable debug with drawn lines in GVIZ, bit 1 == enable "
             "info printed messages")
 
   // Subscribe to the LiDAR topic
@@ -230,10 +230,6 @@ float GapFollow::preprocess_lidar(const std::vector<float>& ranges,
 
     float angle = atan(car_radius_ / dist);
     int expand_idx = int(angle / angle_increment);
-    // RCLCPP_INFO(get_logger(), "DT1 idx: %d v[%f %f] dist=%f step_up=%d exp
-    // %d",
-    //             idx, rdata[idx - 1], rdata[idx], dist, int(step_up),
-    //             expand_idx);
 
     for (int i = 0; i < expand_idx; ++i) {
       if (step_up) {
@@ -316,12 +312,12 @@ int GapFollow::find_best_point(std::vector<float>& rdata,
   if (gap.first >= int(rdata.size()) || gap.second >= int(rdata.size())) {
     throw std::invalid_argument("gap indices are out of range");
   }
-  float best_idx = 0;
+  // float best_idx = 0;
   float best_dist = 0;
   for (int i = gap.first; i < gap.second; i++) {
     if (rdata[i] > best_dist) {
       best_dist = rdata[i];
-      best_idx = i;
+      // best_idx = i;
     }
   }
   float tollerance = 0.1;
@@ -337,15 +333,19 @@ int GapFollow::find_best_point(std::vector<float>& rdata,
         start = i;
       }
       end = i;
-    } else if (active) {
+    } else if (active || i == (gap.second - 1)) {
+      if (!active) {
+        start = i;
+      }
       end = i;
       active = false;
-      if ((bend - bstart) < (end - start)) {
+      if ((bend - bstart) <= (end - start)) {
         bend = end;
         bstart = start;
       }
     }
   }
+
   return (bstart + bend) >> 1;
 }
 

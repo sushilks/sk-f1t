@@ -26,6 +26,19 @@ gap_follow:
 
 build:
 	colcon build
+test: 
+	colcon test
+test_result:
+	colcon test-result --all 
+	#--verbose
+	# colcon test --ctest-args tests [package_selection_args]
+
+gap_follow_test:
+	colcon build --packages-select gap_follow  && ./build/gap_follow/gap_follow_gap_follow_test 
+
+	#colcon test --packages-select gap_follow 
+	#--ctest-args --rerun-failed --output-on-failure
+
 
 jstest:
 	jstest /dev/input/js0

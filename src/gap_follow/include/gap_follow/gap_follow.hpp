@@ -49,7 +49,7 @@ class GapFollow : public rclcpp::Node {
    */
   void init();
 
- private:
+  // private:
   /// Topic name for the lidar scan message.
   ///
   /// This message is a sensor_msgs::msg::LaserScan message.
