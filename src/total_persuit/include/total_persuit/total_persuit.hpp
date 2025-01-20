@@ -24,7 +24,8 @@ class TotalPersuit : public rclcpp::Node {
  public:
   explicit TotalPersuit();
   void init();
-  void pose_callback(const geometry_msgs::msg::PoseStamped::ConstPtr &pose_msg);
+  void pose_callback(
+      const geometry_msgs::msg::PoseStamped::SharedPtr &pose_msg);
   void publishNext();
   void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
   void pid_control(double error);

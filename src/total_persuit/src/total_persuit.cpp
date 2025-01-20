@@ -135,7 +135,8 @@ void TotalPersuit::odom_callback(
   }
 }
 void TotalPersuit::pose_callback(
-    const geometry_msgs::msg::PoseStamped::ConstPtr &pose_msg) {
+    const geometry_msgs::msg::PoseStamped::SharedPtr &pose_msg) {
+  (void)pose_msg;
   // TODO: find the current waypoint to track using methods mentioned in
   // lecture
 
@@ -146,7 +147,9 @@ void TotalPersuit::pose_callback(
   // TODO: publish drive message, don't forget to limit the steering angle.
 }
 void TotalPersuit::lidar_callback(
-    const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) {}
+    const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) {
+  (void)scan_msg;
+}
 void TotalPersuit::pid_control(double error) {
   double angle = 0.0;
 

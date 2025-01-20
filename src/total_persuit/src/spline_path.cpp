@@ -17,7 +17,7 @@ Point findClosestPointAtDistance(
   // Find the closest point on the spline
   double minDistance = std::numeric_limits<double>::max();
   size_t closestIndex = 0;
-  size_t closest_forward = 0;
+  (void)node_;
   // RCLCPP_INFO(node_->get_logger(),
   //             "Starting Search car at x,y => %f %f yaw = %f", x, y,
   //             common::rtod(yaw));
