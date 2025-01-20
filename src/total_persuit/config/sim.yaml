@@ -44,8 +44,10 @@ bridge:
     # map parameters
 #    map_path: '/home/sushil/work/f1tenth_racetracks/Spielberg/Spielberg_map'
 #    map_path: '/home/sushil/work/f1t-labs/skf1t/src/f1tenth_gym_ros//maps/levine'
-    map_path: '/home/sushil/work/skf1t/src/gap_follow/maps/levine_blocked'
+#    map_path: '/home/sushil/work/skf1t/src/gap_follow/maps/levine_blocked'
 #    map_path: '/home/sushil/work/f1t-labs/skf1t/src/gap_follow/maps/levine_obs'
+#    map_path: '/home/sushil/work/skf1t/src/total_persuit/maps/loma_kitchen'
+    map_path: '/home/sushil/work/skf1t/src/total_persuit/maps/loma_kitchen_sm'
     map_img_ext: '.png'
 
     # opponent parameters

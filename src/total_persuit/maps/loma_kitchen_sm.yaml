@@ -1,0 +1,7 @@
+image: loma_kitchen_sm.png
+mode: trinary
+resolution: 0.01000
+origin: [-1.224998, -10.124998, 0.000000]
+negate: 0
+occupied_thresh: 0.50
+free_thresh: 0.10

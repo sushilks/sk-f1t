@@ -5,6 +5,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/src/**/include/",
+                "/opt/ros/humble/include/**",
             ],
             "defines": [],
             "cStandard": "c17",
@@ -17,6 +18,7 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/src/**/include/",
+                "/opt/ros/humble/include/**",
             ],
             "defines": [],
             "cStandard": "c17",

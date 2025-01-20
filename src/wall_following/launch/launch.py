@@ -33,7 +33,7 @@ def generate_launch_description():
     )
     #/home/sushil/work/skf1t/install/wall_following/share/wall_following/launch
     #gym_ws_path = os.getcwd() + "/../sim_ws/install/f1tenth_gym_ros/share/f1tenth_gym_ros/launch"
-    gym_ws_path = os.getcwd() + "/install/f1tenth_gym_ros/share/f1tenth_gym_ros/launch"
+    gym_ws_path = os.getcwd() + "/../f1tenth/install/f1tenth_gym_ros/share/f1tenth_gym_ros/launch"
 
     ld = LaunchDescription([
         launch.actions.DeclareLaunchArgument('wall_following_config', default_value=parameters_file),
