@@ -17,6 +17,13 @@ colcon build
 ```
 jstest /dev/input/js0
 ```
+if joystick stops working you can debug it by running 
+```
+ros2 run joy joy_enumerate_devices
+```
+if no joystick is showing up then check permissions in 
+/dev/input/event?
+and set read permissions
 
 # to launch ROS stack
 ```
