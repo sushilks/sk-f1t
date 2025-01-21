@@ -47,8 +47,10 @@ bridge:
 #    map_path: '/home/sushil/work/skf1t/src/gap_follow/maps/levine_blocked'
 #    map_path: '/home/sushil/work/f1t-labs/skf1t/src/gap_follow/maps/levine_obs'
 #    map_path: '/home/sushil/work/skf1t/src/total_persuit/maps/loma_kitchen'
-    map_path: '/home/sushil/work/skf1t/src/total_persuit/maps/loma_kitchen_sm'
-    map_img_ext: '.png'
+    map_path: '/home/sushil/work/skf1t/maps/kitchen'
+#    map_path: '/home/sushil/work/skf1t/src/total_persuit/maps/loma_kitchen_sm'
+#    map_img_ext: '.png'
+    map_img_ext: '.pgm'
 
     # opponent parameters
     num_agent: 1

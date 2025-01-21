@@ -20,6 +20,11 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
   PARAM_INT(debug_, "debug", 0,
             "bit 0 = enable debug with drawn lines in GVIZ, bit 1 == enable "
             "info printed messages")
+  PARAM_STR(odom_topic_name_, "odom_topic", "ego_racecar/odom",
+            "odom topic to listen to")
+  PARAM_STR(drive_topic_name_, "drive_topic", "drive",
+            "drive topic to send command to")
+  PARAM_STR(scan_topic_name_, "scan_topic", "scan", "laser scan topic name")
 
   {
     rcl_interfaces::msg::ParameterDescriptor desc_a, desc_s;
@@ -65,18 +70,16 @@ void TotalPersuit::init() {
 
   // odom sub is needed for orentiation of the car and to draw the debug lines
   odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-      //"ego_racecar/odom", 10,
-      "odom", 10,
+      odom_topic_name_, 10,
       std::bind(&TotalPersuit::odom_callback, this, std::placeholders::_1));
 
   // Publish to the drive topic
   ack_pub_ = create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
-      //"drive",
-      "ackermann_cmd", 10);
+      drive_topic_name_, 10);
 
   // Subscribe to the LiDAR topic
   laser_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
-      "scan", 10,  // rclcpp::QoS(10),
+      scan_topic_name_, 10,  // rclcpp::QoS(10),
       std::bind(&TotalPersuit::lidar_callback, this, std::placeholders::_1));
 
   //

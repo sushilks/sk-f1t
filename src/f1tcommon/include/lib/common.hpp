@@ -57,6 +57,11 @@
             rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER, default, \
             stdescription)
 
+#define PARAM_STR(vname, stname, default, stdescription)                   \
+  PARAM_DEF(vname, stname,                                                 \
+            rcl_interfaces::msg::ParameterType::PARAMETER_STRING, default, \
+            stdescription)
+
 namespace common {
 /**
  * @brief Convert radians to degrees

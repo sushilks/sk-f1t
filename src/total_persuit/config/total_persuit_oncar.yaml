@@ -1,5 +1,7 @@
 total_persuit:
   ros__parameters:
+    odom_topic: "odom"
+    drive_topic: "ackermann_cmd"
     debug: 1
     kp: 0.2
     kd: 0.7

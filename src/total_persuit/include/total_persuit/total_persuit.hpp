@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
+#include <string>
 
 #include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "debug/debug_line.hpp"
@@ -48,6 +49,9 @@ class TotalPersuit : public rclcpp::Node {
   double tdist_;
   double max_speed_;
   int debug_;
+  std::string odom_topic_name_;
+  std::string drive_topic_name_;
+  std::string scan_topic_name_;
   /// Angle ranges for the vehicle
   std::vector<double> angle_ranges_;
 
