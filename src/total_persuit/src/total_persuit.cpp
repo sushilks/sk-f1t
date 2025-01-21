@@ -1,7 +1,10 @@
 
-#include <lib/common.hpp>
-#include <total_persuit/total_persuit.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
 
+#include <lib/common.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <total_persuit/total_persuit.hpp>
 using namespace common;
 
 namespace total_persuit {
@@ -25,8 +28,8 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
   PARAM_STR(drive_topic_name_, "drive_topic", "drive",
             "drive topic to send command to")
   PARAM_STR(scan_topic_name_, "scan_topic", "scan", "laser scan topic name")
-
-  {
+  PARAM_STR(pose_topic_name_, "pose_topic", "pose",
+            "position estimate topic name") {
     rcl_interfaces::msg::ParameterDescriptor desc_a, desc_s;
     desc_a.name = "angle_range";
     desc_a.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE_ARRAY;
@@ -82,25 +85,74 @@ void TotalPersuit::init() {
       scan_topic_name_, 10,  // rclcpp::QoS(10),
       std::bind(&TotalPersuit::lidar_callback, this, std::placeholders::_1));
 
+  pose_sub_ =
+      create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+          pose_topic_name_, 10,
+          std::bind(&TotalPersuit::pose_callback, this, std::placeholders::_1));
+
   //
   timer_ = this->create_wall_timer(
       std::chrono::milliseconds(1000),  // Publish every 2 seconds
       std::bind(&TotalPersuit::publishNext, this));
 }
+
 void TotalPersuit::odom_callback(
     const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
-  auto pos = msg.get()->pose.pose.position;
-  auto orient = msg.get()->pose.pose.orientation;
-  // current_velocity_ = msg.get()->twist.twist.linear.x;
-  // if (debug_ & 1)
-  //   for (auto dt : debug_lines_) {
-  //     dt.second->odom_callback(msg);
-  //   }
-  double x, y, angle;
-  double yaw =
-      std::atan2(2.0 * (orient.w * orient.z + orient.x * orient.y),
-                 1.0 - 2.0 * (orient.y * orient.y + orient.z * orient.z));
+  latest_odom_ = *msg;
+  if (false) {
+    auto pos = msg.get()->pose.pose.position;
+    auto orient = msg.get()->pose.pose.orientation;
+    double yaw =
+        std::atan2(2.0 * (orient.w * orient.z + orient.x * orient.y),
+                   1.0 - 2.0 * (orient.y * orient.y + orient.z * orient.z));
+    process(pos.x, pos.y, yaw);
+  }
+}
 
+void TotalPersuit::pose_callback(
+    const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr pose_msg) {
+  latest_pose_ = *pose_msg;
+  {
+    delta_x_ =
+        latest_odom_.pose.pose.position.x - latest_pose_.pose.pose.position.x;
+    delta_y_ =
+        latest_odom_.pose.pose.position.y - latest_pose_.pose.pose.position.y;
+
+    tf2::Quaternion pose_quat, odom_quat;
+    tf2::fromMsg(latest_pose_.pose.pose.orientation, pose_quat);
+    tf2::fromMsg(latest_odom_.pose.pose.orientation, odom_quat);
+
+    double pose_yaw = tf2::getYaw(pose_quat);
+    double odom_yaw = tf2::getYaw(odom_quat);
+
+    delta_yaw_ = odom_yaw - pose_yaw;
+    RCLCPP_INFO(this->get_logger(),
+                "Cached deltas: [delta_x: %f, delta_y: %f, delta_yaw: %f]",
+                delta_x_, delta_y_, delta_yaw_);
+  }
+  {
+    auto odom_position = latest_odom_.pose.pose.position;
+    auto odom_orientation = latest_odom_.pose.pose.orientation;
+    tf2::Quaternion odom_quat;
+    tf2::fromMsg(odom_orientation, odom_quat);
+    double odom_yaw = tf2::getYaw(odom_quat);
+
+    double posx = odom_position.x - delta_x_;
+    double posy = odom_position.y - delta_y_;
+    double current_yaw = odom_yaw - delta_yaw_;
+    process(posx, posy, current_yaw);
+  }
+  // TODO: find the current waypoint to track using methods mentioned in
+  // lecture
+
+  // TODO: transform goal point to vehicle frame of reference
+
+  // TODO: calculate curvature/steering angle
+
+  // TODO: publish drive message, don't forget to limit the steering angle.
+}
+
+void TotalPersuit::process(double posx, double posy, double yaw) {
   // RCLCPP_INFO(this->get_logger(), "orient %f %f %f %f [%f]", orient.x,
   // orient.y,
   //             orient.z, orient.w, yaw);
@@ -115,8 +167,9 @@ void TotalPersuit::odom_callback(
   // yaw = 1.692 for up (^) ==> 1.692 rad = 96 deg
   // yaw = -3.13 for back (<--) => -179deg
   // yaw = -1.61 for down (v) => -92 degree
-  spline_path_->get_point_on_path(pos.x, pos.y, yaw, tdist_, x, y, angle);
-  debug_lines_.at(WAYPOINT)->add_line(pos.x, pos.y, x, y);
+  double x, y, angle;
+  spline_path_->get_point_on_path(posx, posy, yaw, tdist_, x, y, angle);
+  debug_lines_.at(WAYPOINT)->add_line(posx, posy, x, y);
   auto err = angle - yaw;
   if (yaw < 0) {
     err = (angle - (dtor(360) + yaw));
@@ -139,18 +192,7 @@ void TotalPersuit::odom_callback(
     dt.second->send_msg(this->get_clock().get()->now());
   }
 }
-void TotalPersuit::pose_callback(
-    const geometry_msgs::msg::PoseStamped::SharedPtr &pose_msg) {
-  (void)pose_msg;
-  // TODO: find the current waypoint to track using methods mentioned in
-  // lecture
 
-  // TODO: transform goal point to vehicle frame of reference
-
-  // TODO: calculate curvature/steering angle
-
-  // TODO: publish drive message, don't forget to limit the steering angle.
-}
 void TotalPersuit::lidar_callback(
     const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) {
   (void)scan_msg;

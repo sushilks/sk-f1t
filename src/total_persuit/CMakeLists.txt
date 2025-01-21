@@ -23,7 +23,8 @@ set(
   "visualization_msgs"
   "ackermann_msgs"
   "f1tcommon"
-  ""
+  "tf2"
+  "tf2_geometry_msgs"
 )
 
 foreach(PACKAGE ${DEPENDENCIES})

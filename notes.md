@@ -183,3 +183,16 @@ ros2 pkg create --build-type ament_cmake wall_following
 
 ### to debug build process
 colcon build --packages-select gap_follow  --event-handlers console_cohesion+ --cmake-args "--trace-source src/gap_follow/CMakeList.txt"
+
+# Total Persuit on car
+Open tmux session
+## session 1 - base ros stack
+cd ~/work_sushil/2ndtry/f1tenth_ws; source install/setup.bash; cd ~/work_sushil/skf1t; source install/local_setup.bash
+ros2 launch f1tenth_stack bringup_launch.py
+## session 2 - slam toolbox
+cd ~/work_sushil/2ndtry/f1tenth_ws; source install/setup.bash; cd ~/work_sushil/skf1t; source install/local_setup.bash
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=/home/sushil/work_sushil/skf1t/maps/f1tenth_localize.yaml
+## session 3 - persuit node
+cd ~/work_sushil/2ndtry/f1tenth_ws; source install/setup.bash; cd ~/work_sushil/skf1t; source install/local_setup.bash
+
+ros2 run total_persuit total_persuit --ros-args --params-file /home/sushil/work_sushil/skf1t/src/total_persuit/config/total_persuit_oncar.yaml
