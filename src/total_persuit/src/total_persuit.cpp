@@ -65,12 +65,14 @@ void TotalPersuit::init() {
 
   // odom sub is needed for orentiation of the car and to draw the debug lines
   odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-      "ego_racecar/odom", 10,
+      //"ego_racecar/odom", 10,
+      "odom", 10,
       std::bind(&TotalPersuit::odom_callback, this, std::placeholders::_1));
 
   // Publish to the drive topic
-  ack_pub_ =
-      create_publisher<ackermann_msgs::msg::AckermannDriveStamped>("drive", 10);
+  ack_pub_ = create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(
+      //"drive",
+      "ackermann_cmd", 10);
 
   // Subscribe to the LiDAR topic
   laser_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(

@@ -24,6 +24,8 @@ wall_following:
 gap_follow: 
 	colcon build --packages-select gap_follow && ros2 launch gap_follow launch.py 
 
+total_persuit:
+	ros2 run total_persuit total_persuit --ros-args --params-file /home/sushil/work_sushil/skf1t/src/total_persuit/config/total_persuit_oncar.yaml
 build:
 	colcon build
 test: 
@@ -48,4 +50,12 @@ ros_stack:
 
 rviz:
 	rviz2
+slam:
+	cd maps &&  ros2 launch slam_toolbox online_async_launch.py slam_params_file:=/home/sushil/work_sushil/skf1t/maps/f1tenth_online_async.yaml
 
+save_map:
+	echo "to Save map with name sk-office use the following command"
+	echo "to save map with pmg/yaml data"
+	echo ros2 run nav2_map_server map_saver_cli -f sk-office
+	echo "To save map with posegraph/data"
+	echo ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename : 'sk-offic3'}"

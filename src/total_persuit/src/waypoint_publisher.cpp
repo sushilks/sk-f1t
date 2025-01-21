@@ -12,6 +12,8 @@ WaypointPublisher::WaypointPublisher(rclcpp::Node::SharedPtr node)
 void WaypointPublisher::loadWaypoints(
     const std::vector<double>& waypoints_param) {
   waypoints_.resize(waypoints_param.size() / 2);
+  // RCLCPP_INFO(node_->get_logger(), "Waypoint publisher got size %d.",
+  //             waypoints_param.size());
   for (size_t i = 0; i < waypoints_param.size(); i += 2) {
     waypoints_[i / 2] = {waypoints_param[i], waypoints_param[i + 1]};
   }
