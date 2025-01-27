@@ -107,6 +107,18 @@ void TotalPersuit::odom_callback(
                    1.0 - 2.0 * (orient.y * orient.y + orient.z * orient.z));
     process(pos.x, pos.y, yaw);
   }
+  {
+    auto odom_position = latest_odom_.pose.pose.position;
+    auto odom_orientation = latest_odom_.pose.pose.orientation;
+    tf2::Quaternion odom_quat;
+    tf2::fromMsg(odom_orientation, odom_quat);
+    double odom_yaw = tf2::getYaw(odom_quat);
+
+    double posx = odom_position.x - delta_x_;
+    double posy = odom_position.y - delta_y_;
+    double current_yaw = odom_yaw - delta_yaw_;
+    process(posx, posy, current_yaw);
+  }
 }
 
 void TotalPersuit::pose_callback(
@@ -183,10 +195,10 @@ void TotalPersuit::process(double posx, double posy, double yaw) {
   // err = std::min(err, dtor(360) - err);
   // yaw = 178 ,,, angle = 162
   // yaw = -171 angle = 208
-  if (debug_ > 0) {
-    RCLCPP_INFO(get_logger(), " yaw = %f , Angle = %f err = %f", rtod(yaw),
-                rtod(angle), rtod(err));
-  }
+  // if (debug_ > 0) {
+  //   RCLCPP_INFO(get_logger(), " yaw = %f , Angle = %f err = %f", rtod(yaw),
+  //               rtod(angle), rtod(err));
+  // }
   pid_control(err);
   for (auto dt : debug_lines_) {
     dt.second->send_msg(this->get_clock().get()->now());
@@ -210,7 +222,7 @@ void TotalPersuit::pid_control(double error) {
           ki_ * integral_;               // integral control
 
   // adjust speed based on angle
-  double speed = 0.1;
+  double speed = 0.2;
   for (int idx = 0; idx < int(angle_ranges_.size()); ++idx) {
     if (abs(angle) < common::dtor(angle_ranges_.at(idx))) {
       speed = speed_ranges_.at(idx);
@@ -223,9 +235,12 @@ void TotalPersuit::pid_control(double error) {
   } else {
     integral_ = 0;
   }
-  // RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f", error, angle);
+
+  speed = std::min(max_speed_, speed);
+  RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f speed = %f", error, angle,
+              speed);
   auto drive_msg = ackermann_msgs::msg::AckermannDriveStamped();
-  drive_msg.drive.speed = std::min(max_speed_, speed);
+  drive_msg.drive.speed = speed;
   drive_msg.drive.acceleration = 0;
   drive_msg.drive.steering_angle = angle;
   drive_msg.drive.steering_angle_velocity = 0.1;
