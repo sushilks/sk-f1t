@@ -20,6 +20,8 @@ enum DEBUGLINES {
    * @brief Draw the closest waypoint
    */
   WAYPOINT = 1,
+  LOOKAHEAD = 2,
+
 };
 
 class TotalPersuit : public rclcpp::Node {
@@ -33,7 +35,7 @@ class TotalPersuit : public rclcpp::Node {
   void pid_control(double error);
   void lidar_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr msg);
   // void pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
-  void process(double x, double y, double yaw);
+  void process(double x, double y, double yaw, double speed);
 
   std::shared_ptr<WaypointPublisher> waypoint_publisher_;
   std::shared_ptr<SplinePath> spline_path_;
@@ -52,6 +54,7 @@ class TotalPersuit : public rclcpp::Node {
   double integral_;
   double tdist_;
   double max_speed_;
+  double la_time_;
   int debug_;
   std::string odom_topic_name_;
   std::string drive_topic_name_;

@@ -10,6 +10,7 @@ total_persuit:
     max_dist_threshold: 10.0
     max_speed: 0.80
     car_radius: 0.3
+    look_ahead_time: 0.3
     angle_range: [1.0,  10.0, 20.0, 30.0, 40.0, 60.0, 80.0]
     speed_range: [8.0,   4.5,  2.0,  1.0,  1.0,  1.0,  1.0]
     drivable_angle: 110.0

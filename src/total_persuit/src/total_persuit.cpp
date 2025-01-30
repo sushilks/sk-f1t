@@ -20,6 +20,9 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
   PARAM_DOUBLE(kd_, "kd", 0.71, "PID controller parameter D")
   PARAM_DOUBLE(tdist_, "track_dist", 1.0, "distance to track")
   PARAM_DOUBLE(max_speed_, "max_speed", 10.0, "speed for range 3")
+  PARAM_DOUBLE(la_time_, "look_ahead_time", 1.0,
+               "look ahead time for error calculation")
+
   PARAM_INT(debug_, "debug", 0,
             "bit 0 = enable debug with drawn lines in GVIZ, bit 1 == enable "
             "info printed messages")
@@ -53,6 +56,9 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
   c.a = 0.5;
   debug_lines_[WAYPOINT] =
       std::make_shared<debug::DebugLine>("WAYPOINT", this, c);  // red scan line
+  c.g = 1.0;
+  debug_lines_[LOOKAHEAD] = std::make_shared<debug::DebugLine>(
+      "LOOKAHEAD", this, c);  // red scan line
 }
 
 void TotalPersuit::publishNext() {
@@ -99,15 +105,15 @@ void TotalPersuit::init() {
 void TotalPersuit::odom_callback(
     const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
   latest_odom_ = *msg;
+  auto speed = msg.get()->twist.twist.linear.x;
   if (false) {
     auto pos = msg.get()->pose.pose.position;
     auto orient = msg.get()->pose.pose.orientation;
     double yaw =
         std::atan2(2.0 * (orient.w * orient.z + orient.x * orient.y),
                    1.0 - 2.0 * (orient.y * orient.y + orient.z * orient.z));
-    process(pos.x, pos.y, yaw);
-  }
-  {
+    process(pos.x, pos.y, yaw, speed);
+  } else {
     auto odom_position = latest_odom_.pose.pose.position;
     auto odom_orientation = latest_odom_.pose.pose.orientation;
     tf2::Quaternion odom_quat;
@@ -117,7 +123,7 @@ void TotalPersuit::odom_callback(
     double posx = odom_position.x - delta_x_;
     double posy = odom_position.y - delta_y_;
     double current_yaw = odom_yaw - delta_yaw_;
-    process(posx, posy, current_yaw);
+    process(posx, posy, current_yaw, speed);
   }
 }
 
@@ -152,7 +158,8 @@ void TotalPersuit::pose_callback(
     double posx = odom_position.x - delta_x_;
     double posy = odom_position.y - delta_y_;
     double current_yaw = odom_yaw - delta_yaw_;
-    process(posx, posy, current_yaw);
+    // we wait for odom callback to process the update
+    // process(posx, posy, current_yaw);
   }
   // TODO: find the current waypoint to track using methods mentioned in
   // lecture
@@ -164,7 +171,7 @@ void TotalPersuit::pose_callback(
   // TODO: publish drive message, don't forget to limit the steering angle.
 }
 
-void TotalPersuit::process(double posx, double posy, double yaw) {
+void TotalPersuit::process(double posx, double posy, double yaw, double speed) {
   // RCLCPP_INFO(this->get_logger(), "orient %f %f %f %f [%f]", orient.x,
   // orient.y,
   //             orient.z, orient.w, yaw);
@@ -179,27 +186,62 @@ void TotalPersuit::process(double posx, double posy, double yaw) {
   // yaw = 1.692 for up (^) ==> 1.692 rad = 96 deg
   // yaw = -3.13 for back (<--) => -179deg
   // yaw = -1.61 for down (v) => -92 degree
-  double x, y, angle;
-  spline_path_->get_point_on_path(posx, posy, yaw, tdist_, x, y, angle);
-  debug_lines_.at(WAYPOINT)->add_line(posx, posy, x, y);
-  auto err = angle - yaw;
-  if (yaw < 0) {
-    err = (angle - (dtor(360) + yaw));
-  }  // -15 - (360 - 1) =>
-  if (err <= dtor(-360)) err += dtor(360);
-  if (err >= dtor(360)) err -= dtor(360);
-  if (err <= dtor(-180))
-    err = dtor(360) + err;
-  else if (err >= dtor(180))
-    err = dtor(360) - err;
-  // err = std::min(err, dtor(360) - err);
-  // yaw = 178 ,,, angle = 162
-  // yaw = -171 angle = 208
-  // if (debug_ > 0) {
-  //   RCLCPP_INFO(get_logger(), " yaw = %f , Angle = %f err = %f", rtod(yaw),
-  //               rtod(angle), rtod(err));
+  double err, angle;
+  {
+    double x, y;
+    spline_path_->get_point_on_path(posx, posy, yaw, tdist_, x, y, angle);
+    debug_lines_.at(WAYPOINT)->add_line(posx, posy, x, y);
+    err = angle - yaw;
+    if (yaw < 0) {
+      err = (angle - (dtor(360) + yaw));
+    }  // -15 - (360 - 1) =>
+    if (err <= dtor(-360)) err += dtor(360);
+    if (err >= dtor(360)) err -= dtor(360);
+    if (err <= dtor(-180))
+      err = dtor(360) + err;
+    else if (err >= dtor(180))
+      err = dtor(360) - err;
+    // err = std::min(err, dtor(360) - err);
+    // yaw = 178 ,,, angle = 162
+    // yaw = -171 angle = 208
+    // if (debug_ > 0) {
+  }
+
+  double e_x, e_y, e_d, e_a;
+
+  {
+    // error should be computed based on speed and after t + dt how much
+    // distance will be covered after travelling that much distance at current
+    // angle what will be position of the car error is the distance of the car
+    // from the central spline.
+
+    // compute where we are going with lookahead time of 1.0 sec
+    double min_speed = 0.85;
+    speed = std::max(speed, min_speed);
+    double dist = speed * la_time_;
+    double la_x = posx + dist * cos(yaw);
+    double la_y = posy + dist * sin(yaw);
+    debug_lines_.at(LOOKAHEAD)->add_line(posx, posy, la_x, la_y);
+    spline_path_->get_closest_point_from(posx, posy, la_x, la_y, yaw, e_x, e_y,
+                                         e_d);
+    debug_lines_.at(LOOKAHEAD)->add_line(la_x, la_y, e_x, e_y);
+    double la_ang = std::atan2((la_y - posy), (la_x - posx));
+    double e_ang = std::atan2((e_y - posy), (e_x - posx));
+    if (la_ang < e_ang) e_d = -1 * e_d;
+    e_a = e_ang - la_ang;
+    // -ve value in e_d is left turn.
+    if (e_a < dtor(-180)) {
+      e_a += dtor(360);
+    } else if (e_a > dtor(180)) {
+      e_a -= dtor(360);
+    }
+  }
+  RCLCPP_INFO(get_logger(),
+              " yaw = %f , Angle = %f err = %f la_err = %f ang = %f", rtod(yaw),
+              rtod(angle), rtod(err), e_d, rtod(e_a));
   // }
-  pid_control(err);
+  //  pid_control(err);
+  pid_control(e_a);
   for (auto dt : debug_lines_) {
     dt.second->send_msg(this->get_clock().get()->now());
   }
@@ -237,8 +279,8 @@ void TotalPersuit::pid_control(double error) {
   }
 
   speed = std::min(max_speed_, speed);
-  RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f speed = %f", error, angle,
-              speed);
+  // RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f speed = %f Yaw = %f",
+  //             error, angle, speed);
   auto drive_msg = ackermann_msgs::msg::AckermannDriveStamped();
   drive_msg.drive.speed = speed;
   drive_msg.drive.acceleration = 0;

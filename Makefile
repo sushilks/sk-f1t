@@ -24,6 +24,8 @@ wall_following:
 gap_follow: 
 	colcon build --packages-select gap_follow && ros2 launch gap_follow launch.py 
 
+total_persuit_gym:
+	colcon build --packages-select total_persuit && ros2 launch  total_persuit launch.py
 total_persuit:
 	ros2 run total_persuit total_persuit --ros-args --params-file /home/sushil/work_sushil/skf1t/src/total_persuit/config/total_persuit_oncar.yaml
 build:

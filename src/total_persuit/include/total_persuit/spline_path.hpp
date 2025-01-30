@@ -14,6 +14,9 @@ class SplinePath {
   void publish();
   void get_point_on_path(double in_x, double in_y, double yaw, double dist,
                          double& out_x, double& out_y, double& out_angle);
+  void get_closest_point_from(double car_x, double car_y, double in_x,
+                              double in_y, double yaw, double& out_x,
+                              double& out_y, double& out_dist);
 
  private:
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr publisher_;

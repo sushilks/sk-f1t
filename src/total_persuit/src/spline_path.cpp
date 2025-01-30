@@ -1,6 +1,8 @@
 #include "total_persuit/spline_path.hpp"
 
 #include "lib/common.hpp"
+using namespace common;
+
 namespace total_persuit {
 using Point = std::pair<double, double>;
 
@@ -9,6 +11,7 @@ static double euclideanDistance(const Point& p1, const Point& p2) {
   return std::sqrt(std::pow(p2.first - p1.first, 2) +
                    std::pow(p2.second - p1.second, 2));
 }
+
 // Method to find the closest point at a given distance from the input point
 Point findClosestPointAtDistance(
     rclcpp::Node::SharedPtr node_,
@@ -128,6 +131,47 @@ void SplinePath::get_point_on_path(double in_x, double in_y, double yaw,
                                         dist, out_angle);
   out_x = res.first;
   out_y = res.second;
+}
+
+void SplinePath::get_closest_point_from(double car_x, double car_y, double in_x,
+                                        double in_y, double yaw, double& out_x,
+                                        double& out_y, double& out_dist) {
+  // Method to find the closest point at a given distance from the input point
+  // Find the closest point on the spline
+  auto yawp = yaw;
+  if (yawp < 0) yawp += dtor(360);
+  out_dist = std::numeric_limits<double>::max();
+  size_t closestIndex = 0;
+  double dist2 = std::numeric_limits<double>::max();
+  size_t closestIndex2 = 0;
+  Point st(in_x, in_y);
+
+  bool found = false;
+  for (size_t i = 0; i < interpolated_points_.size(); ++i) {
+    double dist = euclideanDistance(
+        st, Point(interpolated_points_[i][0], interpolated_points_[i][1]));
+    if (dist < dist2) {
+      dist2 = dist;
+      closestIndex2 = i;
+    }
+    if (dist < out_dist) {
+      double ang = std::atan2(interpolated_points_[i][1] - car_y,
+                              interpolated_points_[i][0] - car_x);
+      if (ang < 0) ang += dtor(360);
+      if (abs(ang - yaw) < dtor(30)) {
+        found = true;
+        out_dist = dist;
+        closestIndex = i;
+      }
+    }
+  }
+  if (!found) {
+    out_dist = dist2;
+    closestIndex = closestIndex2;
+  }
+
+  out_x = interpolated_points_[closestIndex][0];
+  out_y = interpolated_points_[closestIndex][1];
 }
 
 }  // namespace total_persuit
