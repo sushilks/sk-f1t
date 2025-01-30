@@ -56,6 +56,7 @@ class TotalPersuit : public rclcpp::Node {
   double max_speed_;
   double la_time_;
   int debug_;
+  std::string waypoint_selector_;
   std::string odom_topic_name_;
   std::string drive_topic_name_;
   std::string scan_topic_name_;

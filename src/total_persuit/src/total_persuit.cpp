@@ -9,12 +9,6 @@ using namespace common;
 
 namespace total_persuit {
 TotalPersuit::TotalPersuit() : Node("total_persuit") {
-  rcl_interfaces::msg::ParameterDescriptor desc_s;
-  desc_s.name = "waypoints";
-  desc_s.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE_ARRAY;
-  desc_s.description = "list of xy coordinates for the waypoint";
-  declare_parameter(desc_s.name, std::vector<float>{}, desc_s);
-
   PARAM_DOUBLE(kp_, "kp", 0.31, "PID controller parameter P")
   PARAM_DOUBLE(ki_, "ki", 0.00, "PID controller parameter I")
   PARAM_DOUBLE(kd_, "kd", 0.71, "PID controller parameter D")
@@ -22,6 +16,18 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
   PARAM_DOUBLE(max_speed_, "max_speed", 10.0, "speed for range 3")
   PARAM_DOUBLE(la_time_, "look_ahead_time", 1.0,
                "look ahead time for error calculation")
+
+  PARAM_STR(waypoint_selector_, "waypoints_selector", "waypoints_0",
+            "selects which waypoint list to use")
+  //
+  {
+    rcl_interfaces::msg::ParameterDescriptor desc_s;
+    desc_s.name =
+        waypoint_selector_;  // get_parameter("waypoints").as_string();
+    desc_s.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE_ARRAY;
+    desc_s.description = "list of xy coordinates for the waypoint";
+    declare_parameter(desc_s.name, std::vector<float>{}, desc_s);
+  }
 
   PARAM_INT(debug_, "debug", 0,
             "bit 0 = enable debug with drawn lines in GVIZ, bit 1 == enable "
@@ -32,7 +38,9 @@ TotalPersuit::TotalPersuit() : Node("total_persuit") {
             "drive topic to send command to")
   PARAM_STR(scan_topic_name_, "scan_topic", "scan", "laser scan topic name")
   PARAM_STR(pose_topic_name_, "pose_topic", "pose",
-            "position estimate topic name") {
+            "position estimate topic name")
+  //
+  {
     rcl_interfaces::msg::ParameterDescriptor desc_a, desc_s;
     desc_a.name = "angle_range";
     desc_a.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE_ARRAY;
@@ -72,8 +80,7 @@ void TotalPersuit::init() {
   // Initialize member variables that depend on shared_from_this()
   waypoint_publisher_ = std::make_shared<WaypointPublisher>(shared_from_this());
   spline_path_ = std::make_shared<SplinePath>(shared_from_this());
-
-  auto waypoints_param = get_parameter("waypoints").as_double_array();
+  auto waypoints_param = get_parameter(waypoint_selector_).as_double_array();
   waypoint_publisher_->loadWaypoints(waypoints_param);
   spline_path_->generate(waypoint_publisher_->getWaypoints());
 
