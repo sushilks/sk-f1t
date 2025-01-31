@@ -271,7 +271,7 @@ void TotalPersuit::pid_control(double error) {
           ki_ * integral_;               // integral control
 
   // adjust speed based on angle
-  double speed = 0.2;
+  double speed = 0.6;
   for (int idx = 0; idx < int(angle_ranges_.size()); ++idx) {
     if (abs(angle) < common::dtor(angle_ranges_.at(idx))) {
       speed = speed_ranges_.at(idx);
@@ -286,8 +286,8 @@ void TotalPersuit::pid_control(double error) {
   }
 
   speed = std::min(max_speed_, speed);
-  // RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f speed = %f Yaw = %f",
-  //             error, angle, speed);
+  RCLCPP_INFO(get_logger(), " Error = %f , Angle = %f speed = %f ", error,
+              angle, speed);
   auto drive_msg = ackermann_msgs::msg::AckermannDriveStamped();
   drive_msg.drive.speed = speed;
   drive_msg.drive.acceleration = 0;
